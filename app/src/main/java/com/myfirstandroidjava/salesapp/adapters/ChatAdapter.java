@@ -1,5 +1,8 @@
 package com.myfirstandroidjava.salesapp.adapters;
 
+import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,8 +64,24 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
 
         public void bind(ChatMessage chatMessage) {
-            textViewUser.setText(chatMessage.getUser());
-            textViewMessage.setText(chatMessage.getMessage());
+            String message = chatMessage.getMessage();
+            if (message != null && message.endsWith(" has joined the chat")) {
+                textViewUser.setVisibility(View.GONE);
+                String username = chatMessage.getUser();
+                SpannableString spannableMessage = new SpannableString(message);
+                int startIndex = message.indexOf(username);
+                int endIndex = startIndex + username.length();
+
+                if (startIndex != -1) {
+                    spannableMessage.setSpan(new ForegroundColorSpan(Color.GREEN), startIndex, endIndex, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+                }
+                textViewMessage.setText(spannableMessage);
+            } else {
+                textViewUser.setVisibility(View.VISIBLE);
+                textViewUser.setText(chatMessage.getUser());
+                textViewMessage.setText(chatMessage.getMessage());
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.getDefault());
             textViewTimestamp.setText(sdf.format(chatMessage.getTimestamp()));
         }
