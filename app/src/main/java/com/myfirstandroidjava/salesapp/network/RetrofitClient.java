@@ -50,4 +50,8 @@ public class RetrofitClient {
 
         return retrofit;
     }
+
+    public static DeviceTokenAPIService getDeviceTokenAPIService(Context context) {
+        return getClient(context).create(DeviceTokenAPIService.class);
+    }
 }

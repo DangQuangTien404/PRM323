@@ -13,8 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.myfirstandroidjava.salesapp.models.LoginRequest;
 import com.myfirstandroidjava.salesapp.models.LoginResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.myfirstandroidjava.salesapp.models.RegisterDeviceTokenRequest;
 import com.myfirstandroidjava.salesapp.network.AuthAPIService;
+import com.myfirstandroidjava.salesapp.network.DeviceTokenAPIService;
 import com.myfirstandroidjava.salesapp.network.RetrofitClient;
+import com.myfirstandroidjava.salesapp.utils.FcmTokenManager;
 import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import retrofit2.Call;
@@ -68,6 +72,9 @@ public class LoginActivity extends AppCompatActivity {
                     tokenManager.saveToken(token);
                     Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
+                    // Send device token to the backend
+                    sendDeviceToken();
+
                     // Navigate to HomeActivity
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                     startActivity(intent);
@@ -81,6 +88,46 @@ public class LoginActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<LoginResponse> call, @NonNull Throwable t) {
                 Toast.makeText(LoginActivity.this, "Login failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                 Log.e("LOGIN_FAILURE", t.getMessage(), t);
+            }
+        });
+    }
+
+    private void sendDeviceToken() {
+        FcmTokenManager fcmTokenManager = new FcmTokenManager(this);
+        String savedToken = fcmTokenManager.getToken();
+
+        if (savedToken != null) {
+            sendTokenToServer(savedToken);
+            fcmTokenManager.clearToken();
+        } else {
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnCompleteListener(task -> {
+                        if (!task.isSuccessful()) {
+                            Log.w("LOGIN_ACTIVITY", "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+                        String token = task.getResult();
+                        sendTokenToServer(token);
+                    });
+        }
+    }
+
+    private void sendTokenToServer(String token) {
+        DeviceTokenAPIService service = RetrofitClient.getDeviceTokenAPIService(LoginActivity.this);
+        RegisterDeviceTokenRequest request = new RegisterDeviceTokenRequest(token);
+        service.registerDeviceToken(request).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Log.d("LOGIN_ACTIVITY", "Device token registered successfully");
+                } else {
+                    Log.e("LOGIN_ACTIVITY", "Failed to register device token: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("LOGIN_ACTIVITY", "Failed to register device token", t);
             }
         });
     }
