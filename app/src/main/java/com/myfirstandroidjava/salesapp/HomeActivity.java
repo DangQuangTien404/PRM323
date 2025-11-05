@@ -15,9 +15,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.myfirstandroidjava.salesapp.adapters.ProductAdapter;
 import com.myfirstandroidjava.salesapp.fragments.AlertFragment;
 import com.myfirstandroidjava.salesapp.fragments.CartFragment;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.Settings;
 import com.myfirstandroidjava.salesapp.fragments.ChatFragment;
 import com.myfirstandroidjava.salesapp.fragments.MapFragment;
 import com.myfirstandroidjava.salesapp.fragments.ShopFragment;
+import com.myfirstandroidjava.salesapp.services.FloatingBubbleService;
 
 public class HomeActivity extends AppCompatActivity {
     @Override
@@ -32,6 +36,14 @@ public class HomeActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new ShopFragment())
                 .commit();
+
+        if (!Settings.canDrawOverlays(this)) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            startActivityForResult(intent, 0);
+        } else {
+            startService(new Intent(HomeActivity.this, FloatingBubbleService.class));
+        }
     }
 
     private boolean onNavigationItemSelected(@NonNull MenuItem item) {
