@@ -2,6 +2,7 @@ package com.myfirstandroidjava.salesapp.network;
 
 import android.content.Context;
 
+import com.myfirstandroidjava.salesapp.utils.Constants;
 import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import java.io.IOException;
@@ -14,10 +15,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
-
-    // Make sure to use your computer's IP address, not localhost
-    // 10.0.2.2 is the special alias for the Android emulator to access the host machine's localhost
-    private static final String BASE_URL = "http://172.20.10.3:7002/api/";
 
     private static Retrofit retrofit = null;
 
@@ -42,7 +39,7 @@ public class RetrofitClient {
 
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(Constants.BASE_URL + "api/")
                     .addConverterFactory(GsonConverterFactory.create())
                     .client(httpClient.build())
                     .build();
@@ -53,5 +50,9 @@ public class RetrofitClient {
 
     public static DeviceTokenAPIService getDeviceTokenAPIService(Context context) {
         return getClient(context).create(DeviceTokenAPIService.class);
+    }
+
+    public static ChatAPIService getChatAPIService(Context context) {
+        return getClient(context).create(ChatAPIService.class);
     }
 }
