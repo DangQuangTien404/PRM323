@@ -11,15 +11,22 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.myfirstandroidjava.salesapp.models.LoginResponse;
 import com.myfirstandroidjava.salesapp.models.ProductDetailResponse;
+import com.myfirstandroidjava.salesapp.models.RegisterDeviceTokenRequest;
 import com.myfirstandroidjava.salesapp.models.RegisterRequest;
 import com.myfirstandroidjava.salesapp.network.AuthAPIService;
+import com.myfirstandroidjava.salesapp.network.DeviceTokenAPIService;
 import com.myfirstandroidjava.salesapp.network.ProductAPIService;
 import com.myfirstandroidjava.salesapp.network.RetrofitClient;
+import com.myfirstandroidjava.salesapp.utils.DeviceTokenUtil;
+import com.myfirstandroidjava.salesapp.utils.FcmTokenManager;
+import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -70,13 +77,18 @@ public class RegisterActivity extends AppCompatActivity {
         RegisterRequest registerRequest = new RegisterRequest(username, password, email, phone, address);
         authAPIService.registerUser(registerRequest).enqueue(new Callback<LoginResponse>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(@NonNull Call<LoginResponse> call, @NonNull Response<LoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     String token = response.body().getToken();
-                    Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
-                    Log.d("REGISTER_SUCCESS", "Token: " + token);
 
-                    // TODO: Save the token (e.g., in SharedPreferences)
+                    // Save token
+                    TokenManager tokenManager = new TokenManager(RegisterActivity.this);
+                    tokenManager.saveToken(token);
+
+                    Toast.makeText(RegisterActivity.this, "Registration Successful!", Toast.LENGTH_SHORT).show();
+
+                    // Send device token to the backend
+                    DeviceTokenUtil.sendDeviceToken(RegisterActivity.this);
 
                     // Navigate to HomeActivity
                     Intent intent = new Intent(RegisterActivity.this, HomeActivity.class);
@@ -97,4 +109,5 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
     }
+
 }

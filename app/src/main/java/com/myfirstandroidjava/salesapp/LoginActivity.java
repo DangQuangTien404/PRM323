@@ -73,7 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
                     // Send device token to the backend
-                    sendDeviceToken();
+                    DeviceTokenUtil.sendDeviceToken(LoginActivity.this);
 
                     // Navigate to HomeActivity
                     Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
@@ -92,43 +92,4 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void sendDeviceToken() {
-        FcmTokenManager fcmTokenManager = new FcmTokenManager(this);
-        String savedToken = fcmTokenManager.getToken();
-
-        if (savedToken != null) {
-            sendTokenToServer(savedToken);
-            fcmTokenManager.clearToken();
-        } else {
-            FirebaseMessaging.getInstance().getToken()
-                    .addOnCompleteListener(task -> {
-                        if (!task.isSuccessful()) {
-                            Log.w("LOGIN_ACTIVITY", "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
-                        String token = task.getResult();
-                        sendTokenToServer(token);
-                    });
-        }
-    }
-
-    private void sendTokenToServer(String token) {
-        DeviceTokenAPIService service = RetrofitClient.getDeviceTokenAPIService(LoginActivity.this);
-        RegisterDeviceTokenRequest request = new RegisterDeviceTokenRequest(token);
-        service.registerDeviceToken(request).enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                    Log.d("LOGIN_ACTIVITY", "Device token registered successfully");
-                } else {
-                    Log.e("LOGIN_ACTIVITY", "Failed to register device token: " + response.code());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("LOGIN_ACTIVITY", "Failed to register device token", t);
-            }
-        });
-    }
 }
