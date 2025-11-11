@@ -53,8 +53,7 @@ public class PayPalRedirectActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<CaptureResponse> call, Response<CaptureResponse> response) {
                 if (response.isSuccessful() && response.body().success) {
-                    Intent intent = new Intent(PayPalRedirectActivity.this, OrderConfirmationActivity.class);
-                    startActivity(intent);
+                    Toast.makeText(PayPalRedirectActivity.this, "Payment success!", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(PayPalRedirectActivity.this, "Capture failed", Toast.LENGTH_LONG).show();
                 }
@@ -64,7 +63,6 @@ public class PayPalRedirectActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<CaptureResponse> call, Throwable t) {
                 Log.e("PayPal", "Capture failed: " + t.getMessage());
-                Toast.makeText(PayPalRedirectActivity.this, "Capture failed", Toast.LENGTH_LONG).show();
                 finish();
             }
         });
