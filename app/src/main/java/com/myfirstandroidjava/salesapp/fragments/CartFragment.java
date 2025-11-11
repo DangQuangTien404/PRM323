@@ -20,6 +20,7 @@ import com.myfirstandroidjava.salesapp.adapters.CartAdapter;
 import com.myfirstandroidjava.salesapp.models.CartListResponse;
 import com.myfirstandroidjava.salesapp.network.CartAPIService;
 import com.myfirstandroidjava.salesapp.network.RetrofitClient;
+import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -41,9 +42,10 @@ public class CartFragment extends Fragment {
         recyclerView = view.findViewById(R.id.cartRecyclerView);
         tvTotal = view.findViewById(R.id.tvTotal);
         btnCheckout = view.findViewById(R.id.btnCheckout);
-
+        TokenManager tokenManager = new TokenManager(getContext());
+        String token = tokenManager.getToken();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        cartAPIService = RetrofitClient.getClient(requireContext()).create(CartAPIService.class);
+        cartAPIService = RetrofitClient.getClient(requireContext(), token).create(CartAPIService.class);
 
         fetchCartData();
 

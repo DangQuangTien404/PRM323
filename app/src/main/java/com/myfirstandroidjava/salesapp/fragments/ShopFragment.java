@@ -44,7 +44,9 @@ public class ShopFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_shop, container, false);
-        productAPIService = RetrofitClient.getClient(requireContext()).create(ProductAPIService.class);
+        TokenManager tokenManager = new TokenManager(getContext());
+        String token = tokenManager.getToken();
+        productAPIService = RetrofitClient.getClient(requireContext(), token).create(ProductAPIService.class);
 
         recyclerView = view.findViewById(R.id.recyclerViewProducts);
         progressBar = view.findViewById(R.id.progressBar);
@@ -52,8 +54,6 @@ public class ShopFragment extends Fragment {
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
-        TokenManager manager = new TokenManager(requireContext());
-        String token = manager.getToken();
         if (token == null) {
             // Show Login/Register button
             btnLoginRegister.setText("Login / Register");
@@ -70,7 +70,7 @@ public class ShopFragment extends Fragment {
             btnLoginRegister.setVisibility(View.VISIBLE);
 
             btnLoginRegister.setOnClickListener(v -> {
-                manager.clearToken(); // Remove token from shared prefs
+                tokenManager.clearToken(); // Remove token from shared prefs
 
                 Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT).show();
 
