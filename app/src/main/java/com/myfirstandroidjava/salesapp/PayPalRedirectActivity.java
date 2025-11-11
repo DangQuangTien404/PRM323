@@ -12,6 +12,7 @@ import com.myfirstandroidjava.salesapp.models.CaptureRequest;
 import com.myfirstandroidjava.salesapp.models.CaptureResponse;
 import com.myfirstandroidjava.salesapp.network.PayPalAPIService;
 import com.myfirstandroidjava.salesapp.network.RetrofitClient;
+import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -24,7 +25,9 @@ public class PayPalRedirectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        payPalAPIService = RetrofitClient.getClient(this).create(PayPalAPIService.class);
+        TokenManager tokenManager = new TokenManager(this);
+        String token = tokenManager.getToken();
+        payPalAPIService = RetrofitClient.getClient(this, token).create(PayPalAPIService.class);
 
         handleIntent(getIntent());
     }

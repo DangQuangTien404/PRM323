@@ -14,6 +14,7 @@ import com.myfirstandroidjava.salesapp.models.PayPalCreateRequest;
 import com.myfirstandroidjava.salesapp.models.PayPalResponse;
 import com.myfirstandroidjava.salesapp.network.PayPalAPIService;
 import com.myfirstandroidjava.salesapp.network.RetrofitClient;
+import com.myfirstandroidjava.salesapp.utils.TokenManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,8 +28,9 @@ public class PaymentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
-
-        payPalAPIService = RetrofitClient.getClient(this).create(PayPalAPIService.class);
+        TokenManager tokenManager = new TokenManager(this);
+        String token = tokenManager.getToken();
+        payPalAPIService = RetrofitClient.getClient(this, token).create(PayPalAPIService.class);
 
         Button payBtn = findViewById(R.id.btnPay);
         payBtn.setOnClickListener(v -> startPayPalPayment(9.99));

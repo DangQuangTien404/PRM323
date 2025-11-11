@@ -18,10 +18,7 @@ public class RetrofitClient {
 
     private static Retrofit retrofit = null;
 
-    public static Retrofit getClient(Context context) {
-        TokenManager tokenManager = new TokenManager(context);
-        String token = tokenManager.getToken();
-
+    public static Retrofit getClient(Context context, String token) {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
 
         if (token != null && !token.isEmpty()) {
@@ -49,10 +46,14 @@ public class RetrofitClient {
     }
 
     public static DeviceTokenAPIService getDeviceTokenAPIService(Context context) {
-        return getClient(context).create(DeviceTokenAPIService.class);
+        TokenManager tokenManager = new TokenManager(context);
+        String token = tokenManager.getToken();
+        return getClient(context, token).create(DeviceTokenAPIService.class);
     }
 
     public static ChatAPIService getChatAPIService(Context context) {
-        return getClient(context).create(ChatAPIService.class);
+        TokenManager tokenManager = new TokenManager(context);
+        String token = tokenManager.getToken();
+        return getClient(context, token).create(ChatAPIService.class);
     }
 }

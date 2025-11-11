@@ -48,8 +48,10 @@ public class ProductDetailActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnAddToCart = findViewById(R.id.btnAddToCart);
 
-        productAPIService = RetrofitClient.getClient(this).create(ProductAPIService.class);
-        cartAPIService = RetrofitClient.getClient(this).create(CartAPIService.class);
+        TokenManager tokenManager = new TokenManager(this);
+        String token = tokenManager.getToken();
+        productAPIService = RetrofitClient.getClient(this, token).create(ProductAPIService.class);
+        cartAPIService = RetrofitClient.getClient(this, token).create(CartAPIService.class);
 
         productId = getIntent().getIntExtra("productId", -1);
         if (productId != -1) {
@@ -58,8 +60,6 @@ public class ProductDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Invalid product ID", Toast.LENGTH_SHORT).show();
             finish();
         }
-        tokenManager = new TokenManager(this);
-        String token = tokenManager.getToken();
 
         if (token == null || token.isEmpty()) {
             // Not logged in → show login button
