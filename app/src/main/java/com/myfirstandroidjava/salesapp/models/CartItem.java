@@ -1,8 +1,6 @@
 package com.myfirstandroidjava.salesapp.models;
 
-import java.io.Serializable;
-
-public class CartItem implements Serializable {
+public class CartItem {
     private int productId;
     private String productName;
     private String imageUrl;
