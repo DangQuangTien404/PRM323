@@ -31,7 +31,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         CartItem item = orderItems.get(position);
         holder.productName.setText(item.getProductName());
         holder.quantity.setText("Qty: " + item.getQuantity());
-        holder.price.setText(String.format("$%.2f", item.getPrice()));
+        holder.price.setText(String.format("$%.2f", item.getPricePerItem()));
     }
 
     @Override
