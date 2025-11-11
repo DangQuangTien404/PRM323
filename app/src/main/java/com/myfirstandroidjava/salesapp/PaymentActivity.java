@@ -30,8 +30,16 @@ public class PaymentActivity extends AppCompatActivity {
 
         payPalAPIService = RetrofitClient.getClient(this).create(PayPalAPIService.class);
 
+        double totalPrice = getIntent().getDoubleExtra("TOTAL_PRICE", 0.0);
+
         Button payBtn = findViewById(R.id.btnPay);
-        payBtn.setOnClickListener(v -> startPayPalPayment(9.99));
+        payBtn.setOnClickListener(v -> {
+            if (totalPrice > 0) {
+                startPayPalPayment(totalPrice);
+            } else {
+                Toast.makeText(PaymentActivity.this, "Invalid amount", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void startPayPalPayment(double amount) {

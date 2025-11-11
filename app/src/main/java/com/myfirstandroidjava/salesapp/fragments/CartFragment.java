@@ -1,5 +1,6 @@
 package com.myfirstandroidjava.salesapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.myfirstandroidjava.salesapp.PaymentActivity;
 import com.myfirstandroidjava.salesapp.R;
 import com.myfirstandroidjava.salesapp.adapters.CartAdapter;
 import com.myfirstandroidjava.salesapp.models.CartListResponse;
@@ -30,6 +32,7 @@ public class CartFragment extends Fragment {
     private TextView tvTotal;
     private Button btnCheckout;
     private CartAPIService cartAPIService;
+    private double totalCartPrice;
 
     @Nullable
     @Override
@@ -47,9 +50,11 @@ public class CartFragment extends Fragment {
 
         fetchCartData();
 
-        btnCheckout.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Proceeding to checkout...", Toast.LENGTH_SHORT).show()
-        );
+        btnCheckout.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), PaymentActivity.class);
+            intent.putExtra("TOTAL_PRICE", totalCartPrice);
+            startActivity(intent);
+        });
 
         return view;
     }
@@ -63,7 +68,8 @@ public class CartFragment extends Fragment {
                 if (response.isSuccessful() && response.body() != null) {
                     CartListResponse cart = response.body();
                     recyclerView.setAdapter(new CartAdapter(cart.getItems()));
-                    tvTotal.setText(String.format("Total: $%.2f", cart.getTotalCartPrice()));
+                    totalCartPrice = cart.getTotalCartPrice();
+                    tvTotal.setText(String.format("Total: $%.2f", totalCartPrice));
                 } else {
                     Toast.makeText(getContext(), "Failed to load cart.", Toast.LENGTH_SHORT).show();
                     Log.e("CART_LIST_ERROR", "Response code: " + response.code());
