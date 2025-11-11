@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.content.Intent;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.myfirstandroidjava.salesapp.OrderActivity;
 import com.myfirstandroidjava.salesapp.R;
 import com.myfirstandroidjava.salesapp.adapters.CartAdapter;
 import com.myfirstandroidjava.salesapp.models.CartListResponse;
@@ -30,6 +32,7 @@ public class CartFragment extends Fragment {
     private TextView tvTotal;
     private Button btnCheckout;
     private CartAPIService cartAPIService;
+    private CartListResponse cartListResponse;
 
     @Nullable
     @Override
@@ -47,9 +50,16 @@ public class CartFragment extends Fragment {
 
         fetchCartData();
 
-        btnCheckout.setOnClickListener(v ->
-                Toast.makeText(getContext(), "Proceeding to checkout...", Toast.LENGTH_SHORT).show()
-        );
+        btnCheckout.setOnClickListener(v -> {
+            if (cartListResponse != null) {
+                Intent intent = new Intent(getActivity(), OrderActivity.class);
+                intent.putExtra("cart_items", cartListResponse.getItems());
+                intent.putExtra("total_price", cartListResponse.getTotalCartPrice());
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Cart data is not available.", Toast.LENGTH_SHORT).show();
+            }
+        });
 
         return view;
     }
@@ -61,9 +71,9 @@ public class CartFragment extends Fragment {
             @Override
             public void onResponse(Call<CartListResponse> call, Response<CartListResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    CartListResponse cart = response.body();
-                    recyclerView.setAdapter(new CartAdapter(cart.getItems()));
-                    tvTotal.setText(String.format("Total: $%.2f", cart.getTotalCartPrice()));
+                    cartListResponse = response.body();
+                    recyclerView.setAdapter(new CartAdapter(cartListResponse.getItems()));
+                    tvTotal.setText(String.format("Total: $%.2f", cartListResponse.getTotalCartPrice()));
                 } else {
                     Toast.makeText(getContext(), "Failed to load cart.", Toast.LENGTH_SHORT).show();
                     Log.e("CART_LIST_ERROR", "Response code: " + response.code());
