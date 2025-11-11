@@ -51,6 +51,10 @@
             android:name=".ProductDetailActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".OrderActivity"
+            android:exported="false" />
+
         <service
             android:name=".services.MyFirebaseMessagingService"
             android:exported="false">
